@@ -7,7 +7,11 @@ def main():
  c=json.loads(a.template.read_text())
  bundle=os.environ.get('APP_BUNDLE_ID','').strip() or ('org.swiftgram.' + os.environ.get('GITHUB_RUN_ID','local'))
  if not VALID.fullmatch(bundle): raise SystemExit('invalid bundle configuration')
- # Deliberately retain the API ID/hash shipped in Swiftgram's own template.
+ # Use the non-secret API values shipped in Swiftgram's example configuration.
+ example=(a.template.parent / 'example-configuration' / 'variables.bzl')
+ text=example.read_text()
+ c['api_id']=re.search(r'telegram_api_id = "([0-9]+)"', text).group(1)
+ c['api_hash']=re.search(r'telegram_api_hash = "([0-9a-f]+)"', text).group(1)
  c.update({'bundle_id':bundle,'team_id':'0000000000','is_internal_build':'true','is_appstore_build':'false','appstore_id':'0','app_specific_url_scheme':'tg','premium_iap_product_id':'','enable_siri':False,'enable_icloud':False,'sg_config':''})
  a.output.parent.mkdir(parents=True,exist_ok=True); a.output.write_text(json.dumps(c)+'\n'); os.chmod(a.output,0o600)
  a.notice.write_text('Swiftgram template API ID/hash were retained; no API values were added to the repository or printed.\n')
