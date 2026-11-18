@@ -8,7 +8,11 @@ BUILD_ARTIFACTS="${RUNNER_TEMP:-/tmp}/swiftgram-build-artifacts"
 OUTPUT="$ROOT/artifacts"
 APP_DISPLAY_NAME="${APP_DISPLAY_NAME:-Swiftgram}"
 BUILD_NUMBER="${BUILD_NUMBER:-0}"
-: "${APP_BUNDLE_ID:?Missing APP_BUNDLE_ID}"
+if [[ -z "${APP_BUNDLE_ID:-}" ]]; then
+  APP_BUNDLE_ID="org.swiftgram.build$(python3 -c 'import secrets; print(secrets.token_hex(6))')"
+fi
+export APP_BUNDLE_ID
+printf 'Bundle ID: %s\n' "$APP_BUNDLE_ID"
 [[ -d "$UPSTREAM/.git" && -f "$UPSTREAM/.gitmodules" ]] || { echo 'Expected recursive Swiftgram checkout' >&2; exit 1; }
 CANONICAL="/Users/Shared/swiftgram-ios"
 sudo rm -rf "$CANONICAL"
