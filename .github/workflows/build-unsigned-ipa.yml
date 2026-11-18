@@ -31,7 +31,7 @@ jobs:
           test -f scripts/generate_build_config_swiftgram.py
   build:
     needs: preflight
-    runs-on: macos-latest
+    runs-on: xcode-27
     timeout-minutes: 360
     steps:
       - name: Checkout scaffold
