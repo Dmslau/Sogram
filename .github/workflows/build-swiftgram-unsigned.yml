@@ -52,6 +52,15 @@ jobs:
           sudo xcode-select -s "/Applications/Xcode_${v}.app/Contents/Developer"
           xcodebuild -version
           echo "UPSTREAM_COMMIT=$(git -C upstream rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Restore Bazel cache
+        id: bazel-cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/swiftgram-bazel-cache
+          key: swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
+          restore-keys: |
+            swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-
+            swiftgram-bazel-${{ runner.os }}-
       - name: Build and package
         env:
           TG_API_ID: ${{ secrets.TG_API_ID }}
@@ -61,6 +70,12 @@ jobs:
           BUILD_NUMBER: ${{ github.run_number }}
           RUNNER_TEMP: ${{ runner.temp }}
         run: bash scripts/build_swiftgram.sh
+      - name: Save Bazel cache
+        if: always() && steps.bazel-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/swiftgram-bazel-cache
+          key: swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
       - name: Verify IPA
         run: test -s artifacts/Swiftgram-unsigned.ipa
       - name: Upload IPA artifact
