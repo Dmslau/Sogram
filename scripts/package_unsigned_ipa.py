@@ -151,7 +151,7 @@ def main() -> None:
         raise SystemExit("invalid configured base bundle ID")
 
     args.output_ipa.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="cue-unsigned-ipa-") as temp_name:
+    with tempfile.TemporaryDirectory(prefix="unsigned-ipa-") as temp_name:
         work = Path(temp_name)
         with zipfile.ZipFile(args.input_ipa) as archive:
             safe_extract(archive, work)

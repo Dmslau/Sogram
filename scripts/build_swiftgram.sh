@@ -6,11 +6,9 @@ APP_ROOT="$UPSTREAM/Telegram/Telegram-iOS"
 CONFIG="${RUNNER_TEMP:-/tmp}/swiftgram-build-config.json"
 BUILD_ARTIFACTS="${RUNNER_TEMP:-/tmp}/swiftgram-build-artifacts"
 OUTPUT="$ROOT/artifacts"
-APP_DISPLAY_NAME="${APP_DISPLAY_NAME:-Swiftgram}"
+APP_DISPLAY_NAME="${APP_DISPLAY_NAME:-Sogram}"
 BUILD_NUMBER="${BUILD_NUMBER:-0}"
-if [[ -z "${APP_BUNDLE_ID:-}" ]]; then
-  APP_BUNDLE_ID="org.swiftgram.build$(python3 -c 'import secrets; print(secrets.token_hex(6))')"
-fi
+APP_BUNDLE_ID="${APP_BUNDLE_ID:-com.dmslau.sogram}"
 export APP_BUNDLE_ID
 printf 'Bundle ID: %s\n' "$APP_BUNDLE_ID"
 [[ -d "$UPSTREAM/.git" && -f "$UPSTREAM/.gitmodules" ]] || { echo 'Expected recursive Swiftgram checkout' >&2; exit 1; }

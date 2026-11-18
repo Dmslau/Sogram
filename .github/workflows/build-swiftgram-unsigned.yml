@@ -7,13 +7,13 @@ on:
         required: true
         default: master
       app_bundle_id:
-        description: Optional custom non-official Bundle ID; blank generates a random one
-        required: false
-        default: ""
+        description: Non-official Bundle ID
+        required: true
+        default: com.dmslau.sogram
       app_display_name:
         description: Display name
         required: true
-        default: Swiftgram
+        default: Sogram
 permissions:
   contents: write
 jobs:
@@ -60,8 +60,8 @@ jobs:
             swiftgram-bazel-${{ runner.os }}-
       - name: Build and package
         env:
-          TG_API_ID: ${{ secrets.TG_API_ID }}
-          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          APIID: ${{ secrets.APIID }}
+          APIHASH: ${{ secrets.APIHASH }}
           APP_BUNDLE_ID: ${{ inputs.app_bundle_id }}
           APP_DISPLAY_NAME: ${{ inputs.app_display_name }}
           BUILD_NUMBER: ${{ github.run_number }}
