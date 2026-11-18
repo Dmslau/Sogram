@@ -16,9 +16,6 @@ on:
         default: Swiftgram
 permissions:
   contents: write
-concurrency:
-  group: swiftgram-unsigned-${{ github.ref }}
-  cancel-in-progress: false
 jobs:
   preflight:
     runs-on: ubuntu-latest
