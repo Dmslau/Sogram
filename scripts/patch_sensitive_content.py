@@ -39,103 +39,7 @@ def main() -> int:
 
     ok1 = patch_file(chat_history, old_sensitive, new_sensitive, "ChatHistoryListNode.showSensitiveContent (always show when Pro)")
 
-    # 2. Also patch the static extractAssociatedData function signature to include SGSimpleSettings import
-    # Check if SGSimpleSettings is already imported
-    import_check = chat_history.read_text(encoding="utf-8")
-    if "import SGSimpleSettings" not in import_check:
-        # Find the imports section and add SGSimpleSettings
-        old_imports = '''import Foundation
-import UIKit
-import AsyncDisplayKit
-import SwiftSignalKit
-import Display
-import TelegramCore
-import TelegramPresentationData
-import TelegramUIPreferences
-import TextFormat
-import AccountContext
-import LocalizedPeerData
-import ContextUI
-import ChatListUI
-import SettingsUI
-import PasscodeUI
-import UrlHandling
-import LegacyUI
-import ChatMessageItemCommon
-import ChatMessageItem
-import ChatMessageItemView
-import ChatMessageBubbleItemNode
-import ChatMessageInteractiveMediaNode
-import ChatMessageTextBubbleContentNode
-import ChatMessageFileBubbleContentNode
-import ChatMessageWebpageBubbleContentNode
-import ChatMessagePollBubbleContentNode
-import ChatMessageLocationBubbleContentNode
-import ChatMessageContactBubbleContentNode
-import ChatMessageGameBubbleContentNode
-import ChatMessageInvoiceBubbleContentNode
-import ChatMessageInstantVideoBubbleContentNode
-import ChatMessageStickerItemNode
-import ChatMessageAnimatedStickerItemNode
-import ChatMessageActionBubbleContentNode
-import ChatMessageMediaBubbleContentNode
-import ChatMessageRichDataBubbleContentNode
-import ChatMessageVoiceBubbleContentNode
-import ChatMessageVideoBubbleContentNode
-import ChatMessageMusicBubbleContentNode
-import ChatMessageGifBubbleContentNode
-import ChatMessageMapBubbleContentNode
-import ChatMessageVenueBubbleContentNode
-import ChatMessageUnsupportedBubbleContentNode
-import ChatMessageReactionBubbleContentNode
-import ChatMessageDiceBubbleContentNode
-import ChatMessageStoryBubbleContentNode
-import ChatMessageGiveawayBubbleContentNode
-import ChatMessageGiveawayResultsBubbleContentNode
-import ChatMessageBoostBubbleContentNode
-import ChatMessageTopicBubbleContentNode
-import ChatMessageForumTopicBubbleContentNode
-import ChatMessageServiceBubbleContentNode
-import ChatMessageDeleteBubbleContentNode
-import ChatMessageReplyBubbleContentNode
-import ChatMessageForwardBubbleContentNode
-import ChatMessageViaBotBubbleContentNode
-import ChatMessageBotCommandBubbleContentNode
-import ChatMessagePaymentBubbleContentNode
-import ChatMessagePremiumGiftBubbleContentNode
-import ChatMessagePremiumGiftCodeBubbleContentNode
-import ChatMessageGroupCallBubbleContentNode
-import ChatMessageScheduledBubbleContentNode
-import ChatMessageUnsentBubbleContentNode
-import ChatMessagePinnedBubbleContentNode
-import ChatMessageChannelBubbleContentNode
-import ChatMessageBroadcastBubbleContentNode
-import ChatMessageGroupBubbleContentNode
-import ChatMessageSecretBubbleContentNode
-import ChatMessageTopicBubbleContentNode
-import ChatMessageForumTopicBubbleContentNode
-import ChatMessageServiceBubbleContentNode
-import ChatMessageDeleteBubbleContentNode
-import ChatMessageReplyBubbleContentNode
-import ChatMessageForwardBubbleContentNode
-import ChatMessageViaBotBubbleContentNode
-import ChatMessageBotCommandBubbleContentNode
-import ChatMessagePaymentBubbleContentNode
-import ChatMessagePremiumGiftBubbleContentNode
-import ChatMessagePremiumGiftCodeBubbleContentNode
-import ChatMessageGroupCallBubbleContentNode
-import ChatMessageScheduledBubbleContentNode
-import ChatMessageUnsentBubbleContentNode
-import ChatMessagePinnedBubbleContentNode
-import ChatMessageChannelBubbleContentNode
-import ChatMessageBroadcastBubbleContentNode
-import ChatMessageGroupBubbleContentNode
-import ChatMessageSecretBubbleContentNode'''
-
-        # This is too complex, let's just check the actual imports at the top of the file
-        pass
-
-    # 3. Also patch the spoiler media (MediaSpoilerMessageAttribute) to not show overlay
+    # 2. Patch the spoiler media (MediaSpoilerMessageAttribute) to not show overlay when Pro
     interactive_media = root / "submodules/TelegramUI/Components/Chat/ChatMessageInteractiveMediaNode/Sources/ChatMessageInteractiveMediaNode.swift"
     if not interactive_media.is_file():
         print(f"[FAIL] ChatMessageInteractiveMediaNode.swift not found")
@@ -143,25 +47,29 @@ import ChatMessageSecretBubbleContentNode'''
 
     # Patch the displaySpoiler logic for MediaSpoilerMessageAttribute
     old_spoiler = '''        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) {
-            displaySpoiler = true'''
+            displaySpoiler = true
+        } else if isSecretMedia'''
 
     new_spoiler = '''        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) {
             // Swiftgram Pro: don't blur spoiler media when Pro enabled
             if SGSimpleSettings.shared.ephemeralStatus <= 1 {
                 displaySpoiler = true
-            }'''
+            }
+        } else if isSecretMedia'''
 
     ok2 = patch_file(interactive_media, old_spoiler, new_spoiler, "InteractiveMediaNode: disable spoiler blur when Pro")
 
-    # 4. Patch secret media (self-destructing) blur
+    # 3. Patch secret media (self-destructing) blur
     old_secret = '''        } else if isSecretMedia {
-            displaySpoiler = true'''
+            displaySpoiler = true
+        } else if let context = self.context, message.isSensitiveContent'''
 
     new_secret = '''        } else if isSecretMedia {
             // Swiftgram Pro: don't blur secret media when Pro enabled
             if SGSimpleSettings.shared.ephemeralStatus <= 1 {
                 displaySpoiler = true
-            }'''
+            }
+        } else if let context = self.context, message.isSensitiveContent'''
 
     ok3 = patch_file(interactive_media, old_secret, new_secret, "InteractiveMediaNode: disable secret media blur when Pro")
 
