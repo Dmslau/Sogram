@@ -5,7 +5,7 @@ on:
       upstream_ref:
         description: Swiftgram commit or branch
         required: true
-        default: master
+        default: b460f1d8948e725331b34981cc2a563aeeae97fd
       app_bundle_id:
         description: Non-official Bundle ID
         required: true
