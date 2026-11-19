@@ -51,7 +51,19 @@ def main() -> int:
         "SGSimpleSettings groupDefaultValues.status",
     )
 
-    if ok1 and ok2:
+    # 3. SGSimpleSettings ephemeralStatus initial value: 1 -> 2
+    #    This is the critical one: ephemeralStatus is a plain variable (not UserDefault),
+    #    only updated from sharedData signal which requires a stored value.
+    #    On fresh install, sharedData has no sgStatus entry, so ephemeralStatus stays 1
+    #    and ALL Pro checks (ephemeralStatus > 1) fail.
+    ok3 = patch_file(
+        simple_settings,
+        "public var ephemeralStatus: Int64 = 1",
+        "public var ephemeralStatus: Int64 = 2",
+        "SGSimpleSettings ephemeralStatus initial value",
+    )
+
+    if ok1 and ok2 and ok3:
         print("Pro status forced to 2 (immediateSGStatus.status > 1 will be true)")
         return 0
     return 1
