@@ -65,24 +65,24 @@ def main() -> int:
 
     ok1 = patch_file(chat_msg_view, old_setup, new_setup, "ChatMessageItemView.setupItem (remove alpha dimming)")
 
-    # 2. ChatMessageBubbleItemNode.asyncLayout: add zero-height layout for filtered messages
+    # 2. ChatMessageBubbleItemNode.beginLayout: add zero-height layout for filtered messages
     chat_bubble_node = root / "submodules/TelegramUI/Components/Chat/ChatMessageBubbleItemNode/Sources/ChatMessageBubbleItemNode.swift"
     if not chat_bubble_node.is_file():
         print(f"[FAIL] ChatMessageBubbleItemNode.swift not found")
         return 1
 
-    # Find the beginLayout call and add check at the start of the closure
-    old_begin_layout = '''        return { item, params, mergedTop, mergedBottom, dateHeaderAtBottom in
-            let layoutConstants = chatMessageItemLayoutConstants(layoutConstants, params: params, presentationData: item.presentationData)'''
+    # Patch inside beginLayout static function - add check at the very start of function body
+    old_body_start = '''        let isPreview = item.presentationData.isPreview
+        let accessibilityData = ChatMessageAccessibilityData(item: item, isSelected: isSelected)'''
 
-    new_begin_layout = '''        return { item, params, mergedTop, mergedBottom, dateHeaderAtBottom in
-            // Hide filtered messages completely (zero height)
-            if let self = selfReference.value, self.matchedFilterKeyword != nil {
-                return (ListViewItemNodeLayout(contentSize: CGSize(width: params.width, height: 0), insets: UIEdgeInsets()), { _, _, _ in })
-            }
-            let layoutConstants = chatMessageItemLayoutConstants(layoutConstants, params: params, presentationData: item.presentationData)'''
+    new_body_start = '''        // Swiftgram Pro: hide filtered messages completely (zero height)
+        if let node = selfReference.value, node.matchedFilterKeyword != nil {
+            return (ListViewItemNodeLayout(contentSize: CGSize(width: params.width, height: 0), insets: UIEdgeInsets()), { _, _, _ in })
+        }
+        let isPreview = item.presentationData.isPreview
+        let accessibilityData = ChatMessageAccessibilityData(item: item, isSelected: isSelected)'''
 
-    ok2 = patch_file(chat_bubble_node, old_begin_layout, new_begin_layout, "ChatMessageBubbleItemNode.asyncLayout (zero-height for filtered)")
+    ok2 = patch_file(chat_bubble_node, old_body_start, new_body_start, "ChatMessageBubbleItemNode.beginLayout (early return for filtered)")
 
     if ok1 and ok2:
         print("Message filter changed from dimming to hiding completely")
