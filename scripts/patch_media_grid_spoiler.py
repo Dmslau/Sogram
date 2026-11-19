@@ -74,12 +74,14 @@ import SGSimpleSettings'''
 
     ok1 = patch_file(media_grid, old_imports, new_imports, "PeerInfoMediaGridPaneNode: add SGSimpleSettings import")
 
-    # 2. Patch sensitive content check - match the if block more flexibly
-    old = '''        if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
+    # 2. Patch sensitive content check
+    old = '''        var hasSpoiler = rawMessage.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id)
+        if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
             hasSpoiler = true
         }'''
 
-    new = '''        if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
+    new = '''        var hasSpoiler = rawMessage.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id)
+        if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
             // Swiftgram Pro: don't blur sensitive content when Pro enabled
             if SGSimpleSettings.shared.ephemeralStatus <= 1 {
                 hasSpoiler = true
