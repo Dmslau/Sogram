@@ -27,12 +27,21 @@ def main() -> int:
 
     root = args.upstream
 
-    # 1. ChatMessageItemView.setupItem: remove alpha dimming, keep matchedFilterKeyword as flag
+    # 1. ChatMessageItemView: change matchedFilterKeyword from private to fileprivate
     chat_msg_view = root / "submodules/TelegramUI/Components/Chat/ChatMessageItemView/Sources/ChatMessageItemView.swift"
     if not chat_msg_view.is_file():
         print(f"[FAIL] ChatMessageItemView.swift not found")
         return 1
 
+    old_private = '''    private var wasFilteredKeywordTested: Bool = false
+    private var matchedFilterKeyword: String? = nil'''
+    
+    new_private = '''    private var wasFilteredKeywordTested: Bool = false
+    fileprivate var matchedFilterKeyword: String? = nil'''
+
+    ok0 = patch_file(chat_msg_view, old_private, new_private, "ChatMessageItemView.matchedFilterKeyword (private -> fileprivate)")
+
+    # 2. ChatMessageItemView.setupItem: remove alpha dimming, keep matchedFilterKeyword as flag
     old_setup = '''    open func setupItem(_ item: ChatMessageItem, synchronousLoad: Bool) {
         self.item = item
         
@@ -84,7 +93,7 @@ def main() -> int:
 
     ok2 = patch_file(chat_bubble_node, old_body_start, new_body_start, "ChatMessageBubbleItemNode.beginLayout (early return for filtered)")
 
-    if ok1 and ok2:
+    if ok0 and ok1 and ok2:
         print("Message filter changed from dimming to hiding completely")
         return 0
     return 1
