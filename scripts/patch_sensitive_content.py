@@ -35,7 +35,7 @@ def main() -> int:
 
     old_sensitive = '''let associatedData = extractAssociatedData(translateToLanguageSG: translateToLanguageSG, translationSettings: translationSettings, /* MARK: Swiftgram */ chatLocation: chatLocation, view: view, automaticDownloadNetworkType: networkType, preferredStoryHighQuality: preferredStoryHighQuality, animatedEmojiStickers: animatedEmojiStickers, additionalAnimatedEmojiStickers: additionalAnimatedEmojiStickers, premiumGiftStickers: premiumGiftStickers, tonGiftStickers: tonGiftStickers, subject: subject, currentlyPlayingMessageId: currentlyPlayingMessageIdAndType?.0, isCopyProtectionEnabled: isCopyProtectionEnabled, availableReactions: availableReactions, availableMessageEffects: availableMessageEffects, savedMessageTags: savedMessageTags, defaultReaction: defaultReaction.0, areStarReactionsEnabled: defaultReaction.1, isPremium: isPremium, alwaysDisplayTranscribeButton: alwaysDisplayTranscribeButton, accountPeer: accountPeer, topicAuthorId: topicAuthorId, hasBots: chatHasBots, translateToLanguage: translateToLanguage?.toLang, maxReadStoryId: maxReadStoryId, recommendedChannels: recommendedChannels, audioTranscriptionTrial: audioTranscriptionTrial, chatThemes: chatThemes, deviceContactsNumbers: deviceContactsNumbers, isInline: !rotated, showSensitiveContent: contentSettings.ignoreContentRestrictionReasons.contains("sensitive"), isSuspiciousPeer: isSuspiciousPeer, accountCountry: accountCountry)'''
 
-    new_sensitive = '''let associatedData = extractAssociatedData(translateToLanguageSG: translateToLanguageSG, translationSettings: translationSettings, /* MARK: Swiftgram */ chatLocation: chatLocation, view: view, automaticDownloadNetworkType: networkType, preferredStoryHighQuality: preferredStoryHighQuality, animatedEmojiStickers: animatedEmojiStickers, additionalAnimatedEmojiStickers: additionalAnimatedEmojiStickers, premiumGiftStickers: premiumGiftStickers, tonGiftStickers: tonGiftStickers, subject: subject, currentlyPlayingMessageId: currentlyPlayingMessageIdAndType?.0, isCopyProtectionEnabled: isCopyProtectionEnabled, availableReactions: availableReactions, availableMessageEffects: availableMessageEffects, savedMessageTags: savedMessageTags, defaultReaction: defaultReaction.0, areStarReactionsEnabled: defaultReaction.1, isPremium: isPremium, alwaysDisplayTranscribeButton: alwaysDisplayTranscribeButton, accountPeer: accountPeer, topicAuthorId: topicAuthorId, hasBots: chatHasBots, translateToLanguage: translateToLanguage?.toLang, maxReadStoryId: maxReadStoryId, recommendedChannels: recommendedChannels, audioTranscriptionTrial: audioTranscriptionTrial, chatThemes: chatThemes, deviceContactsNumbers: deviceContactsNumbers, isInline: !rotated, showSensitiveContent: SGSimpleSettings.shared.ephemeralStatus > 1 || contentSettings.ignoreContentRestrictionReasons.contains("sensitive"), isSuspiciousPeer: isSuspiciousPeer, accountCountry: accountCountry)'''
+    new_sensitive = '''let associatedData = extractAssociatedData(translateToLanguageSG: translateToLanguageSG, translationSettings: translationSettings, /* MARK: Swiftgram */ chatLocation: chatLocation, view: view, automaticDownloadNetworkType: networkType, preferredStoryHighQuality: preferredStoryHighQuality, animatedEmojiStickers: animatedEmojiStickers, additionalAnimatedEmojiStickers: additionalAnimatedEmojiStickers, premiumGiftStickers: premiumGiftStickers, tonGiftStickers: tonGiftStickers, subject: subject, currentlyPlayingMessageId: currentlyPlayingMessageIdAndType?.0, isCopyProtectionEnabled: isCopyProtectionEnabled, availableReactions: availableReactions, availableMessageEffects: availableMessageEffects, savedMessageTags: savedMessageTags, defaultReaction: defaultReaction.0, areStarReactionsEnabled: defaultReaction.1, isPremium: isPremium, alwaysDisplayTranscribeButton: alwaysDisplayTranscribeButton, accountPeer: accountPeer, topicAuthorId: topicAuthorId, hasBots: chatHasBots, translateToLanguage: translateToLanguage?.toLang, maxReadStoryId: maxReadStoryId, recommendedChannels: recommendedChannels, audioTranscriptionTrial: audioTranscriptionTrial, chatThemes: chatThemes, deviceContactsNumbers: deviceContactsNumbers, isInline: !rotated, showSensitiveContent: SGSimpleSettings.shared.hideSensitiveMediaBlur || contentSettings.ignoreContentRestrictionReasons.contains("sensitive"), isSuspiciousPeer: isSuspiciousPeer, accountCountry: accountCountry)'''
 
     ok1 = patch_file(chat_history, old_sensitive, new_sensitive, "ChatHistoryListNode.showSensitiveContent (always show when Pro)")
 
@@ -51,8 +51,8 @@ def main() -> int:
         } else if isSecretMedia'''
 
     new_spoiler = '''        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) {
-            // Swiftgram Pro: don't blur spoiler media when Pro enabled
-            if SGSimpleSettings.shared.ephemeralStatus <= 1 {
+            // Swiftgram: don't blur spoiler media when setting enabled
+            if !SGSimpleSettings.shared.hideSensitiveMediaBlur {
                 displaySpoiler = true
             }
         } else if isSecretMedia'''
@@ -65,8 +65,8 @@ def main() -> int:
         } else if let context = self.context, message.isSensitiveContent'''
 
     new_secret = '''        } else if isSecretMedia {
-            // Swiftgram Pro: don't blur secret media when Pro enabled
-            if SGSimpleSettings.shared.ephemeralStatus <= 1 {
+            // Swiftgram: don't blur secret media when setting enabled
+            if !SGSimpleSettings.shared.hideSensitiveMediaBlur {
                 displaySpoiler = true
             }
         } else if let context = self.context, message.isSensitiveContent'''
