@@ -37,7 +37,7 @@ def main() -> int:
     private var matchedFilterKeyword: String? = nil'''
     
     new_private = '''    private var wasFilteredKeywordTested: Bool = false
-    fileprivate var matchedFilterKeyword: String? = nil'''
+    internal var matchedFilterKeyword: String? = nil'''
 
     ok0 = patch_file(chat_msg_view, old_private, new_private, "ChatMessageItemView.matchedFilterKeyword (private -> fileprivate)")
 
