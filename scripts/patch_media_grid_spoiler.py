@@ -27,12 +27,54 @@ def main() -> int:
 
     root = args.upstream
 
-    # Patch PeerInfoMediaGridPaneNode: respect Pro setting for sensitive content
     media_grid = root / "submodules/TelegramUI/Components/PeerInfo/PeerInfoVisualMediaPaneNode/Sources/PeerInfoMediaGridPaneNode.swift"
     if not media_grid.is_file():
         print(f"[FAIL] PeerInfoMediaGridPaneNode.swift not found")
         return 1
 
+    # 1. Add import SGSimpleSettings
+    old_imports = '''import Foundation
+import UIKit
+import AsyncDisplayKit
+import Display
+import SwiftSignalKit
+import TelegramCore
+import TelegramPresentationData
+import AccountContext
+import ContextUI
+import ComponentFlow
+import CheckNode
+import ChatControllerInteraction
+import DirectMediaImageCache
+import SparseItemGrid
+import TelegramNotices
+import TelegramStringFormatting
+import PeerInfoPaneNode
+import MediaGrid'''
+
+    new_imports = '''import Foundation
+import UIKit
+import AsyncDisplayKit
+import Display
+import SwiftSignalKit
+import TelegramCore
+import TelegramPresentationData
+import AccountContext
+import ContextUI
+import ComponentFlow
+import CheckNode
+import ChatControllerInteraction
+import DirectMediaImageCache
+import SparseItemGrid
+import TelegramNotices
+import TelegramStringFormatting
+import PeerInfoPaneNode
+import MediaGrid
+import SGSimpleSettings'''
+
+    ok1 = patch_file(media_grid, old_imports, new_imports, "PeerInfoMediaGridPaneNode: add SGSimpleSettings import")
+
+    # 2. Patch sensitive content check
     old = '''        var hasSpoiler = rawMessage.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id)
         if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
             hasSpoiler = true
@@ -46,9 +88,9 @@ def main() -> int:
             }
         }'''
 
-    ok = patch_file(media_grid, old, new, "PeerInfoMediaGridPaneNode: respect Pro for sensitive content")
+    ok2 = patch_file(media_grid, old, new, "PeerInfoMediaGridPaneNode: respect Pro for sensitive content")
 
-    if ok:
+    if ok1 and ok2:
         print("Media grid spoiler blur patched to respect Pro setting")
         return 0
     return 1
