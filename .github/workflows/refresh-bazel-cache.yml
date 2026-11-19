@@ -1,0 +1,46 @@
+name: Refresh Bazel Cache Daily
+
+on:
+  schedule:
+    # UTC 21:00 = Beijing time (UTC+8) 05:00 next day
+    - cron: '0 21 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: xcode-27
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout Swiftgram source
+        uses: actions/checkout@v4
+        with:
+          repository: Swiftgram/Telegram-iOS
+          ref: b460f1d8948e725331b34981cc2a563aeeae97fd
+          path: upstream
+          submodules: recursive
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Select upstream Xcode
+        run: |
+          v=$(python3 -c 'import json; print(json.load(open("upstream/versions.json"))["xcode"])')
+          sudo xcode-select -s "/Applications/Xcode_${v}.app/Contents/Developer"
+          xcodebuild -version
+      - name: Force cache miss (delete local cache)
+        run: rm -rf ~/swiftgram-bazel-cache
+      - name: Build and populate cache
+        env:
+          APIID: ${{ secrets.APIID }}
+          APIHASH: ${{ secrets.APIHASH }}
+          APP_BUNDLE_ID: com.dmslau.sogram
+          APP_DISPLAY_NAME: Sogram
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: bash scripts/build_swiftgram.sh
+      - name: Save Bazel cache (forced)
+        uses: actions/cache/save@v4
+        with:
+          path: ~/swiftgram-bazel-cache
+          key: swiftgram-bazel-macOS-${{ hashFiles('upstream/versions.json') }}-b460f1d8948e725331b34981cc2a563aeeae97fd
