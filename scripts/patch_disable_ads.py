@@ -51,6 +51,21 @@ import SGSimpleSettings'''
     new_fixed = '''if !entries.isEmpty, case let .MessageEntry(lastMessage, _, _, _, _, _) = entries[entries.count - 1], let message = adMessage, !SGSimpleSettings.shared.disableAds {'''
     ok = patch_file(entries_path, old_fixed, new_fixed, "ChatHistoryEntriesForView: suppress fixed ad") and ok
 
+    # Sponsored posts embedded in a channel history are normal messages carrying an ad attribute.
+    old_embedded = '''        if pendingRemovedMessages.contains(message.id) {
+            continue
+        }
+'''
+    new_embedded = '''        if pendingRemovedMessages.contains(message.id) {
+            continue
+        }
+        
+        if SGSimpleSettings.shared.disableAds, message.adAttribute != nil {
+            continue
+        }
+'''
+    ok = patch_file(entries_path, old_embedded, new_embedded, "ChatHistoryEntriesForView: suppress embedded sponsored posts") and ok
+
     # Skip ad management/preloading entirely when globally disabled.
     old_manager = '''    private func beginAdMessageManagement(adMessages: Signal<(interPostInterval: Int32?, messages: [Message], startDelay: Int32?, betweenDelay: Int32?), NoError>) {
         self.adMessagesDisposable = (adMessages'''
