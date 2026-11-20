@@ -33,6 +33,19 @@ def main() -> int:
 
     ok = True
 
+    # Register the two new toggle identifiers in SGBoolSetting (required by generic entries).
+    old_bool_enum = '''    case videoControlsInFooter
+    case combinedMediaViewer
+    case hideAccountInNotifications
+}'''
+    new_bool_enum = '''    case videoControlsInFooter
+    case combinedMediaViewer
+    case hideAccountInNotifications
+    case hidePinnedMessages
+    case hideSensitiveMediaBlur
+}'''
+    ok = patch_file(controller, old_bool_enum, new_bool_enum, "SGBoolSetting: register hidePinnedMessages & hideSensitiveMediaBlur") and ok
+
     # Find a good place to insert toggles - before hideAccountInNotifications in .other section
     old_section = '''    entries.append(.toggle(id: id.count, section: .other, settingName: .hideAccountInNotifications, value: SGSimpleSettings.shared.hideAccountInNotifications, text: i18n("Settings.HideAccountInNotifications", lang), enabled: true))
     
@@ -56,6 +69,21 @@ def main() -> int:
         case .hideAccountInNotifications:
             SGSimpleSettings.shared.hideAccountInNotifications = value'''
     ok = patch_file(controller, old_setbool, new_setbool, "SGSettingsController: add toggle setBoolValue handling") and ok
+
+    # Add localized titles. Missing languages fall back to English via LocalizationManager.
+    for locale, pinned, sensitive in (
+        ("en", "Hide Pinned Message Bar", "Reveal Sensitive Media"),
+        ("zh-hans", "隐藏置顶消息栏", "敏感媒体去模糊"),
+    ):
+        strings_path = root / f"Swiftgram/SGStrings/Strings/{locale}.lproj/SGLocalizable.strings"
+        if not strings_path.is_file():
+            print(f"[FAIL] localization file not found: {strings_path}")
+            return 1
+        old_hide_phone = '"Settings.HidePhoneInSettingsUI"'
+        new_entries = f'''"Settings.HidePinnedMessages" = "{pinned}";
+"Settings.HideSensitiveMediaBlur" = "{sensitive}";
+"Settings.HidePhoneInSettingsUI"'''
+        ok = patch_file(strings_path, old_hide_phone, new_entries, f"{locale}: add toggle titles") and ok
 
     if ok:
         print("SGSettingsController toggles added successfully")
