@@ -74,20 +74,20 @@ jobs:
           path: ~/swiftgram-bazel-cache
           key: swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
       - name: Verify IPA
-        run: test -s artifacts/Swiftgram-unsigned.ipa
+        run: test -s artifacts/sogram.ipa
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: swiftgram-unsigned-ipa-${{ github.run_number }}
-          path: artifacts/Swiftgram-unsigned.ipa
+          path: artifacts/sogram.ipa
           retention-days: 14
       - name: Publish Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="swiftgram-${GITHUB_RUN_NUMBER}"
-          gh release create "$tag" artifacts/Swiftgram-unsigned.ipa --repo "$GITHUB_REPOSITORY" --title "Swiftgram unsigned ${GITHUB_RUN_NUMBER}" --notes "Unsigned Swiftgram IPA; source commit ${UPSTREAM_COMMIT}."
-          echo "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/Swiftgram-unsigned.ipa" >> "$GITHUB_STEP_SUMMARY"
+          gh release create "$tag" artifacts/sogram.ipa --repo "$GITHUB_REPOSITORY" --title "Swiftgram unsigned ${GITHUB_RUN_NUMBER}" --notes "Unsigned Swiftgram IPA; source commit ${UPSTREAM_COMMIT}."
+          echo "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/sogram.ipa" >> "$GITHUB_STEP_SUMMARY"
       - name: Cleanup old releases (keep latest 1)
         if: success()
         env:
