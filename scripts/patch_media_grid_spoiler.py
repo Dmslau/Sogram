@@ -80,7 +80,7 @@ import SGSimpleSettings'''
             hasSpoiler = true
         }'''
 
-    new = '''        var hasSpoiler = rawMessage.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id)
+    new = '''        var hasSpoiler = rawMessage.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id) && !SGSimpleSettings.shared.hideSensitiveMediaBlur
         if rawMessage.isSensitiveContent(platform: "ios", contentSettings: self.context.currentContentSettings.with { $0 }) {
             // Swiftgram: don't blur sensitive content when setting enabled
             if !SGSimpleSettings.shared.hideSensitiveMediaBlur {
