@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   refresh:
@@ -39,6 +40,11 @@ jobs:
           APP_DISPLAY_NAME: Sogram
           BUILD_NUMBER: ${{ github.run_number }}
         run: bash scripts/build_swiftgram.sh
+      - name: Delete old remote cache
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACHE_KEY: swiftgram-bazel-macOS-${{ hashFiles('upstream/versions.json') }}-b460f1d8948e725331b34981cc2a563aeeae97fd
+        run: gh cache delete "$CACHE_KEY" || true
       - name: Save Bazel cache (forced)
         uses: actions/cache/save@v4
         with:
