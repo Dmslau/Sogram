@@ -41,6 +41,7 @@ def main() -> int:
     case hideSensitiveMediaBlur
     case localPremiumEnabled
     case disableAds
+    case bypassBotRestriction
 }'''
     ok = patch_file(controller, old_bool_enum, new_bool_enum, "SGBoolSetting: register hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -53,6 +54,7 @@ def main() -> int:
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideSensitiveMediaBlur, value: SGSimpleSettings.shared.hideSensitiveMediaBlur, text: i18n("Settings.HideSensitiveMediaBlur", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .localPremiumEnabled, value: SGSimpleSettings.shared.localPremiumEnabled, text: i18n("Settings.LocalPremiumEnabled", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .disableAds, value: SGSimpleSettings.shared.disableAds, text: i18n("Settings.DisableAds", lang), enabled: true))
+    entries.append(.toggle(id: id.count, section: .other, settingName: .bypassBotRestriction, value: SGSimpleSettings.shared.bypassBotRestriction, text: i18n("Settings.BypassBotRestriction", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideAccountInNotifications, value: SGSimpleSettings.shared.hideAccountInNotifications, text: i18n("Settings.HideAccountInNotifications", lang), enabled: true))
     
     return filterSGItemListUIEntrires(entries: entries, by: state.searchQuery)'''
@@ -70,14 +72,16 @@ def main() -> int:
             SGSimpleSettings.shared.localPremiumEnabled = value
         case .disableAds:
             SGSimpleSettings.shared.disableAds = value
+        case .bypassBotRestriction:
+            SGSimpleSettings.shared.bypassBotRestriction = value
         case .hideAccountInNotifications:
             SGSimpleSettings.shared.hideAccountInNotifications = value'''
     ok = patch_file(controller, old_setbool, new_setbool, "SGSettingsController: add toggle setBoolValue handling") and ok
 
     # Add localized titles. Missing languages fall back to English via LocalizationManager.
-    for locale, pinned, sensitive, premium, ads in (
-        ("en", "Hide Pinned Message Bar", "Reveal Sensitive Media", "Unlock Telegram Premium Locally", "Disable Ads Globally"),
-        ("zh-hans", "隐藏置顶消息栏", "敏感媒体去模糊", "本地解锁 Telegram 会员", "全局关闭广告"),
+    for locale, pinned, sensitive, premium, ads, bypass in (
+        ("en", "Hide Pinned Message Bar", "Reveal Sensitive Media", "Unlock Telegram Premium Locally", "Disable Ads Globally", "Bypass Bot iOS Restriction"),
+        ("zh-hans", "隐藏置顶消息栏", "敏感媒体去模糊", "本地解锁 Telegram 会员", "全局关闭广告", "解除 Bot iOS 限制"),
     ):
         strings_path = root / f"Swiftgram/SGStrings/Strings/{locale}.lproj/SGLocalizable.strings"
         if not strings_path.is_file():
@@ -88,6 +92,7 @@ def main() -> int:
 "Settings.HideSensitiveMediaBlur" = "{sensitive}";
 "Settings.LocalPremiumEnabled" = "{premium}";
 "Settings.DisableAds" = "{ads}";
+"Settings.BypassBotRestriction" = "{bypass}";
 "Settings.HidePhoneInSettingsUI"'''
         ok = patch_file(strings_path, old_hide_phone, new_entries, f"{locale}: add toggle titles") and ok
 

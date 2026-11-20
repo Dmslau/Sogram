@@ -45,6 +45,7 @@ def main() -> int:
         case hideSensitiveMediaBlur
         case localPremiumEnabled
         case disableAds
+        case bypassBotRestriction
     }'''
     ok = patch_file(settings, old_keys, new_keys, "Keys enum: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -56,6 +57,7 @@ def main() -> int:
         Keys.hideSensitiveMediaBlur.rawValue: false,
         Keys.localPremiumEnabled.rawValue: false,
         Keys.disableAds.rawValue: false,
+        Keys.bypassBotRestriction.rawValue: false,
     ]'''
     ok = patch_file(settings, old_defaults, new_defaults, "defaultValues: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -77,6 +79,9 @@ def main() -> int:
 
     @UserDefault(key: Keys.disableAds.rawValue)
     public var disableAds: Bool
+
+    @UserDefault(key: Keys.bypassBotRestriction.rawValue)
+    public var bypassBotRestriction: Bool
 }'''
     ok = patch_file(settings, old_props, new_props, "Properties: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
