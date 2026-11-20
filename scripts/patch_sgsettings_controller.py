@@ -52,6 +52,7 @@ def main() -> int:
     new_section = '''    entries.append(.toggle(id: id.count, section: .other, settingName: .hidePinnedMessages, value: SGSimpleSettings.shared.hidePinnedMessages, text: i18n("Settings.HidePinnedMessages", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideSensitiveMediaBlur, value: SGSimpleSettings.shared.hideSensitiveMediaBlur, text: i18n("Settings.HideSensitiveMediaBlur", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .localPremiumEnabled, value: SGSimpleSettings.shared.localPremiumEnabled, text: i18n("Settings.LocalPremiumEnabled", lang), enabled: true))
+    entries.append(.toggle(id: id.count, section: .other, settingName: .disableAds, value: SGSimpleSettings.shared.disableAds, text: i18n("Settings.DisableAds", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideAccountInNotifications, value: SGSimpleSettings.shared.hideAccountInNotifications, text: i18n("Settings.HideAccountInNotifications", lang), enabled: true))
     
     return filterSGItemListUIEntrires(entries: entries, by: state.searchQuery)'''
