@@ -169,6 +169,20 @@ import SGItemListUI'''
     items.append(PeerInfoScreenDisclosureItem'''
     ok = patch_file(peer_rows, old_pro_entry, new_pro_entry, "SGPeerInfoRows: remove separate Pro entry") and ok
 
+    # The Pro label is now unused; this module builds with -warnings-as-errors.
+    old_pro_label = '''    let hasNewProFeatures = {
+        return false
+    }
+    let swiftgramProLabel: PeerInfoScreenDisclosureItem.Label
+    if hasNewProFeatures() {
+        swiftgramProLabel = .titleBadge(presentationData.strings.Settings_New, presentationData.theme.list.itemAccentColor)
+    } else {
+        swiftgramProLabel = .none
+    }
+
+'''
+    ok = patch_file(peer_rows, old_pro_label, "", "SGPeerInfoRows: remove unused Pro label") and ok
+
     if ok:
         print("Pro settings merged into regular Swiftgram settings")
         return 0
