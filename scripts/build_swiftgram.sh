@@ -39,6 +39,6 @@ python3 -u build-system/Make/Make.py --cacheDir="${HOME}/swiftgram-bazel-cache" 
 INPUT_IPA="$BUILD_ARTIFACTS/Swiftgram.ipa"
 [[ -f "$INPUT_IPA" ]] || INPUT_IPA="$BUILD_ARTIFACTS/Telegram.ipa"
 [[ -f "$INPUT_IPA" ]] || { echo "Swiftgram IPA output not found" >&2; ls -la "$BUILD_ARTIFACTS"; exit 1; }
-python3 "$ROOT/scripts/package_unsigned_ipa.py" --input-ipa "$INPUT_IPA" --output-ipa "$OUTPUT/sogram.ipa" --base-bundle-id "$APP_BUNDLE_ID" --bundle-id "$APP_BUNDLE_ID" --display-name "$APP_DISPLAY_NAME" --contents-report "$OUTPUT/ipa-contents.json"
-python3 "$ROOT/scripts/validate_unsigned_ipa.py" --ipa "$OUTPUT/sogram.ipa" --bundle-id "$APP_BUNDLE_ID" --report "$OUTPUT/unsigned-ipa-validation.json"
+python3 "$ROOT/scripts/package_unsigned_ipa.py" --input-ipa "$INPUT_IPA" --output-ipa "$OUTPUT/Sogram.ipa" --base-bundle-id "$APP_BUNDLE_ID" --bundle-id "$APP_BUNDLE_ID" --display-name "$APP_DISPLAY_NAME" --contents-report "$OUTPUT/ipa-contents.json"
+python3 "$ROOT/scripts/validate_unsigned_ipa.py" --ipa "$OUTPUT/Sogram.ipa" --bundle-id "$APP_BUNDLE_ID" --report "$OUTPUT/unsigned-ipa-validation.json"
 python3 "$ROOT/scripts/write_install_report.py" --contents "$OUTPUT/ipa-contents.json" --validation "$OUTPUT/unsigned-ipa-validation.json" --notice "$OUTPUT/credentials-notice.txt" --stage baseline --output "$OUTPUT/INSTALL.md"
