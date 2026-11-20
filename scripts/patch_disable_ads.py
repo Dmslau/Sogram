@@ -28,7 +28,8 @@ def main() -> int:
 
     entries_path = root / "submodules/TelegramUI/Sources/ChatHistoryEntriesForView.swift"
     history_path = root / "submodules/TelegramUI/Sources/ChatHistoryListNode.swift"
-    if not entries_path.is_file() or not history_path.is_file():
+    node_path = root / "submodules/TelegramUI/Sources/ChatControllerNode.swift"
+    if not entries_path.is_file() or not history_path.is_file() or not node_path.is_file():
         print("[FAIL] ad-related source files not found")
         return 1
 
@@ -76,6 +77,13 @@ import SGSimpleSettings'''
         }
         self.adMessagesDisposable = (adMessages'''
     ok = patch_file(history_path, old_manager, new_manager, "ChatHistoryListNode: skip ad management when disabled") and ok
+
+    # Bot chats show a sponsored ad panel at the top (chatPresentationInterfaceState.adMessage).
+    old_panel = '''        var displayAdPanel = false
+        if !hideTopPanels, let _ = self.chatPresentationInterfaceState.adMessage {'''
+    new_panel = '''        var displayAdPanel = false
+        if !SGSimpleSettings.shared.disableAds, !hideTopPanels, let _ = self.chatPresentationInterfaceState.adMessage {'''
+    ok = patch_file(node_path, old_panel, new_panel, "ChatControllerNode: suppress bot ad panel") and ok
 
     if ok:
         print("Global ad disable patch applied")
