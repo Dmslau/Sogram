@@ -18,6 +18,22 @@ def patch_file(path: Path, old: str, new: str, label: str) -> bool:
     print(f"[OK] {label}: patched {path}")
     return True
 
+def add_import_if_missing(path: Path, import_line: str, marker: str) -> bool:
+    """在 marker 之后插入 import_line，如果还没插入过的话。"""
+    text = path.read_text(encoding="utf-8")
+    if import_line in text:
+        print(f"[OK] {import_line} already present in {path}")
+        return True
+    old = f"{marker}\n"
+    new = f"{marker}\n{import_line}\n"
+    if old not in text:
+        print(f"[FAIL] add_import: marker not found in {path}")
+        return False
+    text = text.replace(old, new, 1)
+    path.write_text(text, encoding="utf-8")
+    print(f"[OK] add_import: added {import_line} to {path}")
+    return True
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--upstream", required=True, type=Path)
@@ -31,10 +47,14 @@ def main() -> int:
 
     ok = True
 
-    # Patch the message-level restriction check to respect bypassBotRestriction
-    # Changed condition: if restrictionReason != nil { return }
-    # New condition:     if restrictionReason != nil && !bypassBotRestriction { return }
-    # This means: when bypassBotRestriction is enabled, don't hide the message even if there's a restriction
+    # 1. 先添加 SGSimpleSettings 导入（如果还没有）
+    ok = add_import_if_missing(
+        app_context,
+        "import SGSimpleSettings",
+        "// MARK: Swiftgram"
+    ) and ok
+
+    # 2. 应用消息层限制绕过补丁
     old = '''                            if firstMessage.restrictionReason(platform: "ios", contentSettings: strongSelf.context.currentContentSettings.with { $0 }) != nil {
                                 return
                             }'''
