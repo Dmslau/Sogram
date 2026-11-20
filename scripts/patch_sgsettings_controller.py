@@ -43,6 +43,7 @@ def main() -> int:
     case hideAccountInNotifications
     case hidePinnedMessages
     case hideSensitiveMediaBlur
+    case localPremiumEnabled
 }'''
     ok = patch_file(controller, old_bool_enum, new_bool_enum, "SGBoolSetting: register hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -53,6 +54,7 @@ def main() -> int:
 
     new_section = '''    entries.append(.toggle(id: id.count, section: .other, settingName: .hidePinnedMessages, value: SGSimpleSettings.shared.hidePinnedMessages, text: i18n("Settings.HidePinnedMessages", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideSensitiveMediaBlur, value: SGSimpleSettings.shared.hideSensitiveMediaBlur, text: i18n("Settings.HideSensitiveMediaBlur", lang), enabled: true))
+    entries.append(.toggle(id: id.count, section: .other, settingName: .localPremiumEnabled, value: SGSimpleSettings.shared.localPremiumEnabled, text: i18n("Settings.LocalPremiumEnabled", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .other, settingName: .hideAccountInNotifications, value: SGSimpleSettings.shared.hideAccountInNotifications, text: i18n("Settings.HideAccountInNotifications", lang), enabled: true))
     
     return filterSGItemListUIEntrires(entries: entries, by: state.searchQuery)'''
@@ -66,14 +68,16 @@ def main() -> int:
             SGSimpleSettings.shared.hidePinnedMessages = value
         case .hideSensitiveMediaBlur:
             SGSimpleSettings.shared.hideSensitiveMediaBlur = value
+        case .localPremiumEnabled:
+            SGSimpleSettings.shared.localPremiumEnabled = value
         case .hideAccountInNotifications:
             SGSimpleSettings.shared.hideAccountInNotifications = value'''
     ok = patch_file(controller, old_setbool, new_setbool, "SGSettingsController: add toggle setBoolValue handling") and ok
 
     # Add localized titles. Missing languages fall back to English via LocalizationManager.
-    for locale, pinned, sensitive in (
-        ("en", "Hide Pinned Message Bar", "Reveal Sensitive Media"),
-        ("zh-hans", "隐藏置顶消息栏", "敏感媒体去模糊"),
+    for locale, pinned, sensitive, premium in (
+        ("en", "Hide Pinned Message Bar", "Reveal Sensitive Media", "Unlock Telegram Premium Locally (Debug)"),
+        ("zh-hans", "隐藏置顶消息栏", "敏感媒体去模糊", "本地解锁 Telegram 会员（调试）"),
     ):
         strings_path = root / f"Swiftgram/SGStrings/Strings/{locale}.lproj/SGLocalizable.strings"
         if not strings_path.is_file():
@@ -82,6 +86,7 @@ def main() -> int:
         old_hide_phone = '"Settings.HidePhoneInSettingsUI"'
         new_entries = f'''"Settings.HidePinnedMessages" = "{pinned}";
 "Settings.HideSensitiveMediaBlur" = "{sensitive}";
+"Settings.LocalPremiumEnabled" = "{premium}";
 "Settings.HidePhoneInSettingsUI"'''
         ok = patch_file(strings_path, old_hide_phone, new_entries, f"{locale}: add toggle titles") and ok
 

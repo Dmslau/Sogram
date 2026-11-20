@@ -43,6 +43,7 @@ def main() -> int:
         case hideAccountInNotifications
         case hidePinnedMessages
         case hideSensitiveMediaBlur
+        case localPremiumEnabled
     }'''
     ok = patch_file(settings, old_keys, new_keys, "Keys enum: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -52,6 +53,7 @@ def main() -> int:
     new_defaults = '''        Keys.combinedMediaViewer.rawValue: false,
         Keys.hidePinnedMessages.rawValue: false,
         Keys.hideSensitiveMediaBlur.rawValue: false,
+        Keys.localPremiumEnabled.rawValue: false,
     ]'''
     ok = patch_file(settings, old_defaults, new_defaults, "defaultValues: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
@@ -67,6 +69,9 @@ def main() -> int:
 
     @UserDefault(key: Keys.hideSensitiveMediaBlur.rawValue)
     public var hideSensitiveMediaBlur: Bool
+
+    @UserDefault(key: Keys.localPremiumEnabled.rawValue)
+    public var localPremiumEnabled: Bool
 }'''
     ok = patch_file(settings, old_props, new_props, "Properties: add hidePinnedMessages & hideSensitiveMediaBlur") and ok
 
