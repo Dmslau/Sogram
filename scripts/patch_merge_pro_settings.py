@@ -167,7 +167,7 @@ import SGItemListUI'''
     items.append(PeerInfoScreenDisclosureItem'''
     new_pro_entry = '''    var items: [PeerInfoScreenItem] = []
     if paymentsEnabled || context.sharedContext.immediateSGStatus.status > 1 {
-        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Sogram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
+        items.append(PeerInfoScreenDisclosureItem(id: 0, label: .none, text: "Sogram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
             interaction.openSettings(.swiftgramPro)
         }))
     }
