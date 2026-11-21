@@ -2,12 +2,10 @@
 """Patch PeerInfoVisualMediaPaneNode to fix media viewer auto-scroll-back bug.
 
 Root cause:
-- ChatMessageBubbleItemNode zero-height layout hides filtered messages in chat list.
-- Media viewer (PeerInfoVisualMediaPaneNode) loads media list independently from server DB,
-  but its scroll-to-initial-focus logic uses `<=` comparison instead of `==`, so when media
-  list is sorted ascending by index, it scrolls to the previous media instead of the target.
-- initialMessageIndex is set to nil immediately after first scroll attempt, so subsequent
-  list updates won't correct the position if the first attempt landed on wrong item.
+- The auto-scroll to initialFocusMessageIndex after list load causes jumping back to previous media.
+- sparseMessageList already loads media from initialMessageIndex position via server,
+  so no extra scrollToItem is needed.
+- Fix: remove the entire auto-scroll block, just clear initialMessageIndex.
 """
 import argparse
 import sys
@@ -40,15 +38,8 @@ def main() -> int:
 
     ok = True
 
-    # Patch 1: Add hasScrolledToInitialFocus flag declaration after initialMessageIndex
-    old_decl = '''    private var initialMessageIndex: EngineMessage.Index?'''
-    new_decl = '''    private var initialMessageIndex: EngineMessage.Index?
-    // MARK: Sogram
-    private var hasScrolledToInitialFocus: Bool = false'''
-    ok = patch_file(target, old_decl, new_decl, "Add hasScrolledToInitialFocus flag") and ok
-
-    # Patch 2: Replace the scroll-to-initial-focus logic with exact match + flag guard
-    old_scroll = '''            if let initialMessageIndexValue = self.initialMessageIndex, items.items.contains(where: { item in
+    # Remove the auto-scroll to initialFocusMessageIndex block
+    old = '''            if let initialMessageIndexValue = self.initialMessageIndex, items.items.contains(where: { item in
                 if let _ = item as? VisualMediaItem {
                     return true
                 } else {
@@ -66,63 +57,17 @@ def main() -> int:
                 }
             }'''
 
-    new_scroll = '''            // MARK: Sogram
-            if !self.hasScrolledToInitialFocus, let initialMessageIndexValue = self.initialMessageIndex {
-                var scrolled = false
-                // First pass: exact match to target index
-                for item in items.items {
-                    if let item = item as? VisualMediaItem, item.message.index == initialMessageIndexValue {
-                        self.itemGrid.scrollToItem(at: item.index, force: true)
-                        scrolled = true
-                        break
-                    }
-                }
-                // Fallback: nearest previous item if exact match not found
-                if !scrolled {
-                    for item in items.items {
-                        if let item = item as? VisualMediaItem {
-                            if item.message.index <= initialMessageIndexValue {
-                                self.itemGrid.scrollToItem(at: item.index, force: true)
-                                scrolled = true
-                                break
-                            }
-                        }
-                    }
-                }
-                if scrolled {
-                    self.hasScrolledToInitialFocus = true
-                }
-            }'''
+    new = '''            // MARK: Sogram
+            // Auto-scroll to initialFocusMessageIndex removed:
+            // sparseMessageList already loads media from initialMessageIndex position via server,
+            // so the list will be at the correct position without extra scrollToItem.
+            // The extra scroll was causing the "jump back to previous media" bug.
+            self.initialMessageIndex = nil'''
 
-    ok = patch_file(target, old_scroll, new_scroll, "Replace scroll-to-initial-focus with exact match") and ok
-
-    # Patch 3: Set flag in didScrollImpl to stop auto-scroll when user manually scrolls
-    old_did_scroll = '''        self.itemGridBinding.didScrollImpl = { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-            strongSelf.paneDidScroll?()
-
-            strongSelf.cancelPreviewGestures()
-        }'''
-
-    new_did_scroll = '''        // MARK: Sogram
-        self.itemGridBinding.didScrollImpl = { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-            strongSelf.paneDidScroll?()
-
-            strongSelf.cancelPreviewGestures()
-
-            // User manually scrolled, stop auto-scroll to initial focus
-            strongSelf.hasScrolledToInitialFocus = true
-        }'''
-
-    ok = patch_file(target, old_did_scroll, new_did_scroll, "Set flag on manual scroll") and ok
+    ok = patch_file(target, old, new, "PeerInfoVisualMediaPaneNode: remove auto-scroll to initial focus") and ok
 
     if ok:
-        print("Media viewer focus fix applied (complete version)")
+        print("Media viewer no-scroll fix applied")
         return 0
     return 1
 

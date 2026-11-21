@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Patch PeerInfoMediaGridPaneNode to fix media viewer auto-scroll-back bug.
 
-Same root cause as PeerInfoVisualMediaPaneNode:
-- Uses `<=` comparison instead of `==`, so when media list is sorted ascending,
-  it scrolls to the previous media instead of the target.
-- initialMessageIndex is set to nil immediately, so subsequent updates won't correct.
+Root cause:
+- The auto-scroll to initialFocusMessageIndex after list load causes jumping back to previous media.
+- sparseMessageList already loads media from initialMessageIndex position via server,
+  so no extra scrollToItem is needed.
+- Fix: remove the entire auto-scroll block, just clear initialMessageIndex.
 """
 import argparse
 import sys
@@ -37,15 +38,8 @@ def main() -> int:
 
     ok = True
 
-    # Patch 1: Add hasScrolledToInitialFocus flag declaration after initialMessageIndex
-    old_decl = '''    private var initialMessageIndex: EngineMessage.Index?'''
-    new_decl = '''    private var initialMessageIndex: EngineMessage.Index?
-    // MARK: Sogram
-    private var hasScrolledToInitialFocus: Bool = false'''
-    ok = patch_file(target, old_decl, new_decl, "Add hasScrolledToInitialFocus flag") and ok
-
-    # Patch 2: Replace the scroll-to-initial-focus logic with exact match + flag guard
-    old_scroll = '''        if let initialMessageIndex = self.initialMessageIndex, self.dataSource.hasLoadedMessages {
+    # Remove the auto-scroll to initialFocusMessageIndex block
+    old = '''        if let initialMessageIndex = self.initialMessageIndex, self.dataSource.hasLoadedMessages {
             self.initialMessageIndex = nil
             for message in self.dataSource.loadedMessages where message.index <= initialMessageIndex {
                 if let index = self.dataSource.index(of: message.id) {
@@ -55,37 +49,17 @@ def main() -> int:
             }
         }'''
 
-    new_scroll = '''        // MARK: Sogram
-        if !self.hasScrolledToInitialFocus, let initialMessageIndexValue = self.initialMessageIndex, self.dataSource.hasLoadedMessages {
-            var scrolled = false
-            // First pass: exact match to target index
-            for message in self.dataSource.loadedMessages where message.index == initialMessageIndexValue {
-                if let index = self.dataSource.index(of: message.id) {
-                    self.scrollToItem(index: index)
-                    scrolled = true
-                }
-                break
-            }
-            // Fallback: nearest previous item if exact match not found
-            if !scrolled {
-                for message in self.dataSource.loadedMessages where message.index <= initialMessageIndexValue {
-                    if let index = self.dataSource.index(of: message.id) {
-                        self.scrollToItem(index: index)
-                        scrolled = true
-                    }
-                    break
-                }
-            }
-            if scrolled {
-                self.hasScrolledToInitialFocus = true
-            }
-            self.initialMessageIndex = nil
-        }'''
+    new = '''        // MARK: Sogram
+        // Auto-scroll to initialFocusMessageIndex removed:
+        // sparseMessageList already loads media from initialMessageIndex position via server,
+        // so the list will be at the correct position without extra scrollToItem.
+        // The extra scroll was causing the "jump back to previous media" bug.
+        self.initialMessageIndex = nil'''
 
-    ok = patch_file(target, old_scroll, new_scroll, "Replace scroll-to-initial-focus with exact match") and ok
+    ok = patch_file(target, old, new, "PeerInfoMediaGridPaneNode: remove auto-scroll to initial focus") and ok
 
     if ok:
-        print("Media grid focus fix applied")
+        print("Media grid no-scroll fix applied")
         return 0
     return 1
 
