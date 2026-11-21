@@ -160,12 +160,17 @@ import SGItemListUI'''
 
     old_pro_entry = '''    var items: [PeerInfoScreenItem] = []
     if paymentsEnabled || context.sharedContext.immediateSGStatus.status > 1 {
-        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Sogram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
+        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Swiftgram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
             interaction.openSettings(.swiftgramPro)
         }))
     }
     items.append(PeerInfoScreenDisclosureItem'''
     new_pro_entry = '''    var items: [PeerInfoScreenItem] = []
+    if paymentsEnabled || context.sharedContext.immediateSGStatus.status > 1 {
+        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Sogram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
+            interaction.openSettings(.swiftgramPro)
+        }))
+    }
     items.append(PeerInfoScreenDisclosureItem'''
     ok = patch_file(peer_rows, old_pro_entry, new_pro_entry, "SGPeerInfoRows: remove separate Pro entry") and ok
 
