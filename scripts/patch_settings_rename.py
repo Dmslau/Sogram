@@ -57,7 +57,7 @@ def main() -> int:
         }))
     }'''
     new_pro_entry = '''    // Sogram: Pro entry removed — all Pro features merged into main settings
-    if false {'''
+    if false {}'''
     ok = patch_file(peer_info_rows, old_pro_entry, new_pro_entry, "SGPeerInfoRows: remove Pro entry") and ok
 
     if ok:
