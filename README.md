@@ -26,5 +26,5 @@
 
 最新 IPA 固定链接：
 ```
-https://github.com/Dmslau/swiftgram-ipa/releases/latest/download/Sogram.ipa
+https://github.com/Dmslau/Sogram/releases/latest/download/Sogram.ipa
 ```
