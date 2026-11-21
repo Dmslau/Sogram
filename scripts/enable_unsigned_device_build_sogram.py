@@ -7,7 +7,7 @@ old="combined_arguments += ['--//Telegram:disableProvisioningProfiles']"
 new="combined_arguments += ['--//Telegram:disableProvisioningProfiles', '--//Telegram:disableExtensions', '--features=disable_legacy_signing']"
 if old in s and new not in s: s=s.replace(old,new,1); a.make_script.write_text(s)
 files=list(a.rules_apple_root.rglob('ios_rules.bzl'))
-if not files: raise SystemExit('Swiftgram rules_apple ios_rules.bzl not found')
+if not files: raise SystemExit('Sogram rules_apple ios_rules.bzl not found')
 count=0
 pat=re.compile(r'    if platform_prerequisites\.platform\.is_device:\n        processor_partials\.append\(\n            partials\.provisioning_profile_partial\(')
 rep='    if platform_prerequisites.platform.is_device and "disable_legacy_signing" not in features:\n        processor_partials.append(\n            partials.provisioning_profile_partial('
@@ -16,4 +16,4 @@ for f in files:
  if 'disable_legacy_signing" not in features' in t: continue
  n=len(pat.findall(t))
  if n: f.write_text(pat.sub(rep,t)); count+=n
-print(f'Swiftgram unsigned mode enabled; patched {count} provisioning branches.')
+print(f'Sogram unsigned mode enabled; patched {count} provisioning branches.')

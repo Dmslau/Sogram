@@ -22,7 +22,7 @@ def patch_file(path: Path, old: str, new: str, label: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--upstream", required=True, type=Path, help="Swiftgram upstream root")
+    parser.add_argument("--upstream", required=True, type=Path, help="Sogram upstream root")
     args = parser.parse_args()
 
     root = args.upstream

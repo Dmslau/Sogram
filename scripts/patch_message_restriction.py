@@ -58,7 +58,7 @@ def main() -> int:
     old = '''                            if firstMessage.restrictionReason(platform: "ios", contentSettings: strongSelf.context.currentContentSettings.with { $0 }) != nil {
                                 return
                             }'''
-    new = '''                            // MARK: Swiftgram
+    new = '''                            // MARK: Sogram
                             if firstMessage.restrictionReason(platform: "ios", contentSettings: strongSelf.context.currentContentSettings.with { $0 }) != nil && !SGSimpleSettings.shared.bypassBotRestriction {
                                 return
                             }'''

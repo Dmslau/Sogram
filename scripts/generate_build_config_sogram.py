@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the Swiftgram build configuration from Actions secrets."""
+"""Generate the Sogram build configuration from Actions secrets."""
 import argparse
 import json
 import os
@@ -56,7 +56,7 @@ def main() -> None:
     os.chmod(args.output, 0o600)
     args.notice.parent.mkdir(parents=True, exist_ok=True)
     args.notice.write_text("APIID 和 APIHASH 来自仓库 Actions secrets，已注入构建配置；值未写入仓库或日志。\n", encoding="utf-8")
-    print(f"Swiftgram build configuration created for bundle ID {bundle_id}. API values were not printed.")
+    print(f"Sogram build configuration created for bundle ID {bundle_id}. API values were not printed.")
 
 
 if __name__ == "__main__":

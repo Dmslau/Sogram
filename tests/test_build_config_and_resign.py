@@ -1,4 +1,4 @@
-"""Tests for the Swiftgram unsigned-build configuration and re-sign compatibility."""
+"""Tests for the Sogram unsigned-build configuration and re-sign compatibility."""
 import importlib.util
 import tempfile
 import unittest
@@ -45,14 +45,14 @@ class ResignCompatTests(unittest.TestCase):
 
 class ScaffoldTests(unittest.TestCase):
     def test_workflow_uses_secret_credentials_and_sogram_identity(self):
-        workflow = (ROOT / ".github/workflows/build-swiftgram-unsigned.yml").read_text(encoding="utf-8")
+        workflow = (ROOT / ".github/workflows/build-sogram-unsigned.yml").read_text(encoding="utf-8")
         self.assertIn("secrets.APIID", workflow)
         self.assertIn("secrets.APIHASH", workflow)
         self.assertIn("com.dmslau.sogram", workflow)
         self.assertEqual(len(list((ROOT / ".github/workflows").glob("*.yml"))), 1)
 
-    def test_swiftgram_config_does_not_read_upstream_api_values(self):
-        script = (ROOT / "scripts/generate_build_config_swiftgram.py").read_text(encoding="utf-8")
+    def test_sogram_config_does_not_read_upstream_api_values(self):
+        script = (ROOT / "scripts/generate_build_config_sogram.py").read_text(encoding="utf-8")
         self.assertIn("APIID", script)
         self.assertIn("APIHASH", script)
         self.assertNotIn("variables.bzl", script)

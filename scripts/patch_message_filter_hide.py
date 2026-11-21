@@ -84,7 +84,7 @@ def main() -> int:
     old_body_start = '''        let isPreview = item.presentationData.isPreview
         let accessibilityData = ChatMessageAccessibilityData(item: item, isSelected: isSelected)'''
 
-    new_body_start = '''        // Swiftgram Pro: hide filtered messages completely (zero height)
+    new_body_start = '''        // Sogram Pro: hide filtered messages completely (zero height)
         if let node = selfReference.value, node.matchedFilterKeyword != nil {
             return (ListViewItemNodeLayout(contentSize: CGSize(width: params.width, height: 0), insets: UIEdgeInsets()), { _, _, _ in })
         }

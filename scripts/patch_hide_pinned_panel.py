@@ -68,7 +68,7 @@ import SGSimpleSettings'''
     new_call = '''                case .pinnedMessage:
                     if case .pinnedMessages = chatPresentationInterfaceState.subject {
                     } else {
-                        // Swiftgram: hide pinned message bar permanently when setting enabled
+                        // Sogram: hide pinned message bar permanently when setting enabled
                         if !SGSimpleSettings.shared.hidePinnedMessages && chatPinnedPanelIsVisible(pinnedMessageTopId: chatPresentationInterfaceState.pinnedMessage?.topMessageId, skeletonId: chatPresentationInterfaceState.pinnedMessageSkeletonId, closedPinnedMessageId: chatPresentationInterfaceState.interfaceState.messageActionsState.closedPinnedMessageId, pendingUnpinnedAllMessages: chatPresentationInterfaceState.pendingUnpinnedAllMessages) {
                             selectedContext = context
                             break loop

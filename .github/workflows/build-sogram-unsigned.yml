@@ -1,9 +1,9 @@
-name: Build Swiftgram unsigned IPA
+name: Build Sogram unsigned IPA
 on:
   workflow_dispatch:
     inputs:
       upstream_ref:
-        description: Swiftgram commit or branch
+        description: Sogram upstream commit or branch
         required: true
         default: b460f1d8948e725331b34981cc2a563aeeae97fd
       app_bundle_id:
@@ -24,8 +24,8 @@ jobs:
       - name: Validate scaffold files
         run: |
           python3 -m py_compile scripts/*.py
-          test -x scripts/build_swiftgram.sh
-          test -f scripts/generate_build_config_swiftgram.py
+          test -x scripts/build_sogram.sh
+          test -f scripts/generate_build_config_sogram.py
   build:
     needs: preflight
     runs-on: xcode-27
@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: Checkout scaffold
         uses: actions/checkout@v4
-      - name: Checkout Swiftgram source
+      - name: Checkout Sogram source
         uses: actions/checkout@v4
         with:
           repository: Swiftgram/Telegram-iOS
@@ -53,11 +53,11 @@ jobs:
         id: bazel-cache-restore
         uses: actions/cache/restore@v4
         with:
-          path: ~/swiftgram-bazel-cache
-          key: swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
+          path: ~/sogram-bazel-cache
+          key: sogram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
           restore-keys: |
-            swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-
-            swiftgram-bazel-${{ runner.os }}-
+            sogram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-
+            sogram-bazel-${{ runner.os }}-
       - name: Build and package
         env:
           APIID: ${{ secrets.APIID }}
@@ -66,27 +66,27 @@ jobs:
           APP_DISPLAY_NAME: ${{ inputs.app_display_name }}
           BUILD_NUMBER: ${{ github.run_number }}
           RUNNER_TEMP: ${{ runner.temp }}
-        run: bash scripts/build_swiftgram.sh
+        run: bash scripts/build_sogram.sh
       - name: Save Bazel cache
         if: always() && steps.bazel-cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
-          path: ~/swiftgram-bazel-cache
-          key: swiftgram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
+          path: ~/sogram-bazel-cache
+          key: sogram-bazel-${{ runner.os }}-${{ hashFiles('upstream/versions.json') }}-${{ inputs.upstream_ref }}
       - name: Verify IPA
         run: test -s artifacts/Sogram.ipa
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: swiftgram-unsigned-ipa-${{ github.run_number }}
+          name: sogram-unsigned-ipa-${{ github.run_number }}
           path: artifacts/Sogram.ipa
           retention-days: 14
       - name: Publish Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="swiftgram-${GITHUB_RUN_NUMBER}"
-          gh release create "$tag" artifacts/Sogram.ipa --repo "$GITHUB_REPOSITORY" --title "Swiftgram unsigned ${GITHUB_RUN_NUMBER}" --notes "Unsigned Swiftgram IPA; source commit ${UPSTREAM_COMMIT}."
+          tag="sogram-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" artifacts/Sogram.ipa --repo "$GITHUB_REPOSITORY" --title "Sogram unsigned ${GITHUB_RUN_NUMBER}" --notes "Unsigned Sogram IPA; source commit ${UPSTREAM_COMMIT}."
           echo "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/Sogram.ipa" >> "$GITHUB_STEP_SUMMARY"
       - name: Cleanup old releases (keep latest 1)
         if: success()
@@ -105,4 +105,4 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$BARK_KEY"
-          curl --fail-with-body --retry 3 --get --data-urlencode "title=Swiftgram ${JOB_STATUS}" --data-urlencode "body=${GITHUB_REPOSITORY} #${GITHUB_RUN_NUMBER}: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" "https://api.day.app/${BARK_KEY}"
+          curl --fail-with-body --retry 3 --get --data-urlencode "title=Sogram ${JOB_STATUS}" --data-urlencode "body=${GITHUB_REPOSITORY} #${GITHUB_RUN_NUMBER}: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" "https://api.day.app/${BARK_KEY}"

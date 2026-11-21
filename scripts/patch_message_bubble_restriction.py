@@ -36,7 +36,7 @@ def main() -> int:
                 result.append((message, ChatMessageRestrictedBubbleContentNode.self, itemAttributes, BubbleItemAttributes(isAttachment: false, neighborType: .text, neighborSpacing: .default)))
                 needReactions = false
                 break outer'''
-    new1 = '''            // MARK: Swiftgram
+    new1 = '''            // MARK: Sogram
             if let attribute = attribute as? RestrictedContentMessageAttribute, attribute.platformText(platform: "ios", contentSettings: item.context.currentContentSettings.with { $0 }, chatId: message.author?.id.id._internalGetInt64Value()) != nil, !SGSimpleSettings.shared.bypassBotRestriction {
                 result.append((message, ChatMessageRestrictedBubbleContentNode.self, itemAttributes, BubbleItemAttributes(isAttachment: false, neighborType: .text, neighborSpacing: .default)))
                 needReactions = false
@@ -47,8 +47,8 @@ def main() -> int:
     old2 = '''            if let attribute = attribute as? RestrictedContentMessageAttribute, attribute.platformText(platform: "ios", contentSettings: item.context.currentContentSettings.with { $0 }, chatId: item.content.firstMessage.author?.id.id._internalGetInt64Value()) != nil { // MARK: Swiftgram
                 needsShareButton = false
                 needsSummarizeButton = false'''
-    new2 = '''            // MARK: Swiftgram
-            if let attribute = attribute as? RestrictedContentMessageAttribute, attribute.platformText(platform: "ios", contentSettings: item.context.currentContentSettings.with { $0 }, chatId: item.content.firstMessage.author?.id.id._internalGetInt64Value()) != nil, !SGSimpleSettings.shared.bypassBotRestriction { // MARK: Swiftgram
+    new2 = '''            // MARK: Sogram
+            if let attribute = attribute as? RestrictedContentMessageAttribute, attribute.platformText(platform: "ios", contentSettings: item.context.currentContentSettings.with { $0 }, chatId: item.content.firstMessage.author?.id.id._internalGetInt64Value()) != nil, !SGSimpleSettings.shared.bypassBotRestriction { // MARK: Sogram
                 needsShareButton = false
                 needsSummarizeButton = false'''
     ok = patch_file(target, old2, new2, "ChatMessageBubbleItemNode: keep share buttons when bypass enabled") and ok

@@ -51,7 +51,7 @@ def main() -> int:
         } else if isSecretMedia'''
 
     new_spoiler = '''        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) {
-            // Swiftgram: don't blur spoiler media when setting enabled
+            // Sogram: don't blur spoiler media when setting enabled
             if !SGSimpleSettings.shared.hideSensitiveMediaBlur {
                 displaySpoiler = true
             }
@@ -65,7 +65,7 @@ def main() -> int:
         } else if let context = self.context, message.isSensitiveContent'''
 
     new_secret = '''        } else if isSecretMedia {
-            // Swiftgram: don't blur secret media when setting enabled
+            // Sogram: don't blur secret media when setting enabled
             if !SGSimpleSettings.shared.hideSensitiveMediaBlur {
                 displaySpoiler = true
             }

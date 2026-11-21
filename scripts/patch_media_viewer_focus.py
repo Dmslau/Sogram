@@ -43,7 +43,7 @@ def main() -> int:
     # Patch 1: Add hasScrolledToInitialFocus flag declaration after initialMessageIndex
     old_decl = '''    private var initialMessageIndex: EngineMessage.Index?'''
     new_decl = '''    private var initialMessageIndex: EngineMessage.Index?
-    // MARK: Swiftgram
+    // MARK: Sogram
     private var hasScrolledToInitialFocus: Bool = false'''
     ok = patch_file(target, old_decl, new_decl, "Add hasScrolledToInitialFocus flag") and ok
 
@@ -66,7 +66,7 @@ def main() -> int:
                 }
             }'''
 
-    new_scroll = '''            // MARK: Swiftgram
+    new_scroll = '''            // MARK: Sogram
             if !self.hasScrolledToInitialFocus, let initialMessageIndexValue = self.initialMessageIndex {
                 var scrolled = false
                 // First pass: exact match to target index
@@ -106,7 +106,7 @@ def main() -> int:
             strongSelf.cancelPreviewGestures()
         }'''
 
-    new_did_scroll = '''        // MARK: Swiftgram
+    new_did_scroll = '''        // MARK: Sogram
         self.itemGridBinding.didScrollImpl = { [weak self] in
             guard let strongSelf = self else {
                 return
