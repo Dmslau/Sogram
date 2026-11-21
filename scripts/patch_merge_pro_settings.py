@@ -87,7 +87,7 @@ import SGItemListUI'''
     new_search = old_search + '''
     
     // Former Swiftgram Pro page, now available as regular settings.
-    entries.append(.header(id: id.count, section: .pro, text: "SWIFTGRAM PRO", badge: nil))
+    entries.append(.header(id: id.count, section: .pro, text: "Sogram", badge: nil))
     entries.append(.disclosure(id: id.count, section: .pro, link: .sessionBackupManager, text: "SessionBackup.Title".i18n(lang)))
     entries.append(.disclosure(id: id.count, section: .pro, link: .messageFilter, text: "MessageFilter.Title".i18n(lang)))
     entries.append(.toggle(id: id.count, section: .pro, settingName: .inputToolbar, value: SGSimpleSettings.shared.inputToolbar, text: "InputToolbar.Title".i18n(lang), enabled: true))
@@ -160,7 +160,7 @@ import SGItemListUI'''
 
     old_pro_entry = '''    var items: [PeerInfoScreenItem] = []
     if paymentsEnabled || context.sharedContext.immediateSGStatus.status > 1 {
-        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Swiftgram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
+        items.append(PeerInfoScreenDisclosureItem(id: 0, label: swiftgramProLabel, text: "Sogram Pro", icon: PresentationResourcesSettings.swiftgramPro, action: {
             interaction.openSettings(.swiftgramPro)
         }))
     }
